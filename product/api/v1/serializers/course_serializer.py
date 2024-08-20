@@ -99,7 +99,7 @@ class CourseSerializer(serializers.ModelSerializer):
             return 0
 
         filled_groups = Group.objects.filter(course=obj).annotate(
-            student_count=Count('subscription')
+            student_count=Count('students')
         ).filter(student_count__gt=0).count()
 
         return (filled_groups / total_groups) * 100
