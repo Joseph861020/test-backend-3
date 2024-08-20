@@ -5,6 +5,7 @@ from django.db import models
 def get_default_course():
     return Course.objects.first()
 
+
 class Course(models.Model):
     """Модель продукта - курса."""
     author = models.ForeignKey(
@@ -89,5 +90,3 @@ class Group(models.Model):
 
     def __str__(self):
         return f'Группа {self.id} курса {self.course.title}' if self.course else f'Группа {self.id}'
-
-

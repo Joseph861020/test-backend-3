@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from users.models import Subscription
 from courses.models import Course
+from users.models import Subscription
 
 User = get_user_model()
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователей."""
@@ -21,6 +22,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'date_joined',
         )
 
+
 class CourseSerializer(serializers.ModelSerializer):
     """Сериализатор курсов для подписки."""
 
@@ -31,6 +33,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'title',
             # Добавьте другие поля, если нужно
         )
+
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""

@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import CustomUser, Balance, Subscription
 from django.contrib.auth.admin import UserAdmin
+
+from .models import CustomUser, Balance, Subscription
 
 
 class CustomUserAdmin(UserAdmin):

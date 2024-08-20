@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from api.v1.permissions import IsStudentOrIsAdmin, ReadOnlyOrIsAdmin
 from api.v1.serializers.course_serializer import (CourseSerializer,
@@ -12,7 +14,6 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   LessonSerializer)
 from api.v1.serializers.user_serializer import SubscriptionSerializer
 from courses.models import Course
-from rest_framework.viewsets import ModelViewSet
 from users.models import Subscription
 
 
