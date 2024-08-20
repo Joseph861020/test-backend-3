@@ -12,6 +12,7 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   LessonSerializer)
 from api.v1.serializers.user_serializer import SubscriptionSerializer
 from courses.models import Course
+from rest_framework.viewsets import ModelViewSet
 from users.models import Subscription
 
 
@@ -53,8 +54,8 @@ class GroupViewSet(viewsets.ModelViewSet):
         return course.groups.all()
 
 
-class CourseViewSet(viewsets.ModelViewSet):
-    """Курсы """
+class CourseViewSet(ModelViewSet):
+    """Курсы"""
 
     queryset = Course.objects.all()
     permission_classes = (ReadOnlyOrIsAdmin,)
@@ -72,9 +73,40 @@ class CourseViewSet(viewsets.ModelViewSet):
     def pay(self, request, pk):
         """Покупка доступа к курсу (подписка на курс)."""
 
-        # TODO
+        course = get_object_or_404(Course, id=pk)
+        user = request.user
 
+        # Check if the user already has an active subscription for this course
+        existing_subscription = Subscription.objects.filter(user=user, course=course).first()
+        if existing_subscription:
+            return Response(
+                {"detail": "Вы уже подписаны на этот курс."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if the user has sufficient balance
+        user_balance = user.balance.balance
+        if user_balance < course.price:
+            return Response(
+                {"detail": "Недостаточно средств на балансе."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create the subscription
+        subscription = Subscription.objects.create(
+            user=user,
+            course=course,
+            access_granted=True,
+            subscription_date=timezone.now()
+        )
+
+        # Update the user's balance
+        user_balance -= course.price
+        user.balance.balance = user_balance
+        user.balance.save()
+
+        serializer = SubscriptionSerializer(subscription)
         return Response(
-            data=data,
+            serializer.data,
             status=status.HTTP_201_CREATED
         )

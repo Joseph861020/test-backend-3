@@ -49,10 +49,9 @@ class StudentSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     """Список групп."""
 
-    # TODO Доп. задание
-
     class Meta:
         model = Group
+        fields = ('id', 'title', 'course')
 
 
 class CreateGroupSerializer(serializers.ModelSerializer):
@@ -87,19 +86,33 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_lessons_count(self, obj):
         """Количество уроков в курсе."""
-        # TODO Доп. задание
+        return obj.lessons.count()
 
     def get_students_count(self, obj):
         """Общее количество студентов на курсе."""
-        # TODO Доп. задание
+        return Subscription.objects.filter(course=obj).count()
 
     def get_groups_filled_percent(self, obj):
-        """Процент заполнения групп, если в группе максимум 30 чел.."""
-        # TODO Доп. задание
+        """Процент заполнения групп, если в группе максимум 30 чел."""
+        total_groups = Group.objects.filter(course=obj).count()
+        if total_groups == 0:
+            return 0
+
+        filled_groups = Group.objects.filter(course=obj).annotate(
+            student_count=Count('subscription')
+        ).filter(student_count__gt=0).count()
+
+        return (filled_groups / total_groups) * 100
 
     def get_demand_course_percent(self, obj):
         """Процент приобретения курса."""
-        # TODO Доп. задание
+        total_students = User.objects.count()
+        if total_students == 0:
+            return 0
+
+        subscribed_students = Subscription.objects.filter(course=obj).values('user').distinct().count()
+
+        return (subscribed_students / total_students) * 100
 
     class Meta:
         model = Course
@@ -122,3 +135,17 @@ class CreateCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
+        fields = ('title', 'start_date', 'price', 'author')
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор подписки."""
+
+    class Meta:
+        model = Subscription
+        fields = (
+            'user',
+            'course',
+            'access_granted',
+            'subscription_date',
+        )
