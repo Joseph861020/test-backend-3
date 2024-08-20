@@ -51,7 +51,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ('id', 'title', 'course')
+        fields = ('id', 'course', 'students')
 
 
 class CreateGroupSerializer(serializers.ModelSerializer):
